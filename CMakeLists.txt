@@ -10,4 +10,4 @@ target_link_libraries(test_min_max ${GTEST_LIBRARIES})
 set_property(TARGET test_min_max PROPERTY CXX_STANDARD 11)
 
 enable_testing()
-add_test(AllTestsInFoo test_min_max)
+add_test(TestMinMax test_min_max)
