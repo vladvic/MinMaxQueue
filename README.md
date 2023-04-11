@@ -10,9 +10,11 @@ This is a header-only library, so it has no link dependencies
 
 Gtest library
 
+CMake 3+
+
 ## Build test:
 
-1. ``mkdir build
-   cd build
-   cmake ..
-   make``
+1. ``mkdir build``
+2. ``cd build``
+3. ``cmake ..``
+4. ``make``
