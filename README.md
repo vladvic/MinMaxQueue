@@ -1,4 +1,4 @@
-### MinMaxQueue module for C++
+# MinMaxQueue lib for C++
 
 ## Usage requirements:
 
