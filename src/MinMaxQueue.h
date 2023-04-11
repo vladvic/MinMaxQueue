@@ -60,6 +60,10 @@ void MinMaxQueue<T>::push(T &&e) {
 
 template<typename T>
 T MinMaxQueue<T>::pop() {
+  if (empty()) {
+    throw std::invalid_argument("Queue is empty!");
+  }
+
   auto element = _queue.front();
   if (_min_element.front() == &_queue.front()) {
     _min_element.pop_front();
