@@ -8,6 +8,7 @@
  ***************************************************/
 
 #include <gtest/gtest.h>
+#include <map>
 #include "MinMaxQueue.h"
 #include "Profiler.h"
 
@@ -17,18 +18,13 @@ class MinMaxQueueTest
   : public ::testing::Test
 {
 protected:
-  static MinMaxQueue<int> queue;
-  static size_t elapsedPushTime, elapsedPopTime, elapsedMinMaxTime;
-  static constexpr size_t nRepeats[2] = {10000, 100000};
+  MinMaxQueue<int> queue;
 };
-
-MinMaxQueue<int> MinMaxQueueTest::queue;
-size_t MinMaxQueueTest::elapsedPushTime;
-size_t MinMaxQueueTest::elapsedPopTime;
-size_t MinMaxQueueTest::elapsedMinMaxTime;
 
 TEST_F(MinMaxQueueTest, PushElements) {
   ASSERT_TRUE(queue.empty()) << "queue should be empty";
+
+  ASSERT_THROW(queue.pop(), std::invalid_argument) << "max should throw";
   ASSERT_THROW(queue.min(), std::invalid_argument) << "min should throw";
   ASSERT_THROW(queue.max(), std::invalid_argument) << "max should throw";
 
@@ -47,30 +43,36 @@ TEST_F(MinMaxQueueTest, PushElements) {
   queue.push(3); // min: 1; max: 3
   ASSERT_EQ(queue.min(), -1) << "min should be -1";
   ASSERT_EQ(queue.max(), 3) << "max should be 3";
+
+  ASSERT_FALSE(queue.empty()) << "queue should be empty";
 }
 
 TEST_F(MinMaxQueueTest, PopElements) {
-  int result;
-  result = queue.pop();
-  ASSERT_EQ(result, 1) << "popped result should be 1";
+  // Prepare pop test
+  queue.push(1);
+  queue.push(2);
+  queue.push(-1);
+  queue.push(3);
+
+  ASSERT_FALSE(queue.empty()) << "queue should be empty";
+
+  ASSERT_EQ(queue.pop(), 1) << "popped result should be 1";
   ASSERT_EQ(queue.min(), -1) << "min should be -1";
   ASSERT_EQ(queue.max(), 3) << "max should be 3";
 
-  result = queue.pop();
-  ASSERT_EQ(result, 2) << "popped result should be 2";
+  ASSERT_EQ(queue.pop(), 2) << "popped result should be 2";
   ASSERT_EQ(queue.min(), -1) << "min should be -1";
   ASSERT_EQ(queue.max(), 3) << "max should be 3";
 
-  result = queue.pop();
-  ASSERT_EQ(result, -1) << "popped result should be -1";
+  ASSERT_EQ(queue.pop(), -1) << "popped result should be -1";
   ASSERT_EQ(queue.min(), 3) << "min should be 3";
   ASSERT_EQ(queue.max(), 3) << "max should be 3";
 
-  result = queue.pop();
-  ASSERT_EQ(result, 3) << "popped result should be 3";
+  ASSERT_EQ(queue.pop(), 3) << "popped result should be 3";
 
   ASSERT_THROW(queue.min(), std::invalid_argument) << "min should throw";
   ASSERT_THROW(queue.max(), std::invalid_argument) << "max should throw";
+  ASSERT_THROW(queue.pop(), std::invalid_argument) << "max should throw";
 
   ASSERT_TRUE(queue.empty()) << "queue should be empty";
 }
@@ -103,7 +105,11 @@ TEST_F(MinMaxQueueTest, PushPopMix) {
   ASSERT_TRUE(queue.empty()) << "queue should be empty";
 }
 
-TEST_F(MinMaxQueueTest, PushPop10000) {
+TEST_F(MinMaxQueueTest, PushPopTime) {
+  constexpr size_t nRepeats[2] = {10000, 100000};
+  size_t elapsedPushTime, elapsedPopTime, elapsedMinMaxTime;
+
+  // Push/min/max/pop nRepeats[0] times
   {
   Profiler prof(elapsedPushTime);
 
@@ -131,10 +137,10 @@ TEST_F(MinMaxQueueTest, PushPop10000) {
   }
 
   }
-}
 
-TEST_F(MinMaxQueueTest, PushPop100000) {
   size_t newElapsedPushTime, newElapsedPopTime, newElapsedMinMaxTime;
+
+  // Push/min/max/pop nRepeats[1] times
   {
   Profiler prof(newElapsedPushTime);
 

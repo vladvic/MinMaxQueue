@@ -8,15 +8,15 @@
  ***************************************************/
 #pragma once
 
-#include <list>
+#include <deque>
 #include <utility>
 #include <stdexcept>
 
 template<typename T>
 class MinMaxQueue {
 public:
-  void push(const T &e);
-  void push(T &&e);
+  template<typename M>
+  void push(M e);
   T pop();
 
   bool empty() const;
@@ -29,9 +29,9 @@ private:
 
   void update_min_max();
 
-  std::list<T> _queue;
-  std::list<MinMaxElement> _min_element;
-  std::list<MinMaxElement> _max_element;
+  std::deque<T> _queue;
+  std::deque<MinMaxElement> _min_element;
+  std::deque<MinMaxElement> _max_element;
 };
 
 template<typename T>
@@ -47,13 +47,8 @@ void MinMaxQueue<T>::update_min_max() {
 }
 
 template<typename T>
-void MinMaxQueue<T>::push(const T &e) {
-  _queue.push_back(e);
-  update_min_max();
-}
-
-template<typename T>
-void MinMaxQueue<T>::push(T &&e) {
+template<typename M>
+void MinMaxQueue<T>::push(M e) {
   _queue.emplace_back(std::forward<T>(e));
   update_min_max();
 }
@@ -63,14 +58,13 @@ T MinMaxQueue<T>::pop() {
   if (empty()) {
     throw std::invalid_argument("Queue is empty!");
   }
-
-  auto element = _queue.front();
   if (_min_element.front() == &_queue.front()) {
     _min_element.pop_front();
   }
   if (_max_element.front() == &_queue.front()) {
     _max_element.pop_front();
   }
+  auto element = std::move(_queue.front());
   _queue.pop_front();
   return element;
 }
